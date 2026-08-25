@@ -1,0 +1,10 @@
+# Binários
+/akademi-api
+*.exe
+*.test
+
+# Variáveis de ambiente
+.env
+
+# IDE
+.vscode/
