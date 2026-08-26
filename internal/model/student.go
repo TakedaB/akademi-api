@@ -6,7 +6,7 @@ type Student struct {
 	ID               string    `json:"id"`
 	EnrollmentNumber string    `json:"enrollment_number"`
 	Name             string    `json:"name"`
-	BirthDate        string    `json:"birth_date"`
+	BirthDate        time.Time `json:"birth_date"`
 	ParentName       string    `json:"parent_name"`
 	City             string    `json:"city,omitempty"`
 	Phone            string    `json:"phone"`

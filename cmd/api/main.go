@@ -4,7 +4,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/TakedaB/akademi-api/cmd/internal/repository"
+	"github.com/TakedaB/akademi-api/internal/repository"
 )
 
 func main() {

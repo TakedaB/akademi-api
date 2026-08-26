@@ -24,5 +24,10 @@ CREATE TABLE students (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+CREATE TABLE enrollment_counters (
+    year INT PRIMARY KEY,
+    count INT NOT NULL DEFAULT 0
+);
+
 CREATE INDEX idx_students_enrollment_number ON students (enrollment_number);
 CREATE INDEX idx_users_email ON users(email);    
