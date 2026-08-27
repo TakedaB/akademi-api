@@ -27,7 +27,7 @@ func (r *StudentRepository) Create(s *model.Student) error {
 }
 
 func (r *StudentRepository) FindAll() ([]model.Student, error) {
-	query := `SELECT id, enrollment_number, name, birth_name, parent_name, city, phone, email, grade, created_at, updated_at FROM students ORDER BY name `
+	query := `SELECT id, enrollment_number, name, birth_date, parent_name, city, phone, email, grade, created_at, updated_at FROM students ORDER BY name `
 
 	rows, err := r.db.Query(query)
 	if err != nil {
@@ -97,14 +97,6 @@ func (r *StudentRepository) NextSequential(year int) (int, error) {
 		VALUES ($1, 1)
 		ON CONFLICT (year) DO UPDATE SET count = enrollment_counters.count + 1
 		RETURNING count`
-
-	var count int
-	err := r.db.QueryRow(query, year).Scan(&count)
-	return count, err
-}
-
-func (r *StudentRepository) CountByYear(year int) (int, error) {
-	query := `SELECT COUNT(*) FROM students WHERE EXTRACT(YEAR FROM created_at) = $1`
 
 	var count int
 	err := r.db.QueryRow(query, year).Scan(&count)

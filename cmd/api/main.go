@@ -4,18 +4,30 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/TakedaB/akademi-api/internal/handler"
+	"github.com/TakedaB/akademi-api/internal/middleware"
 	"github.com/TakedaB/akademi-api/internal/repository"
+	"github.com/TakedaB/akademi-api/internal/service"
 )
 
 func main() {
 	db := repository.NewPostgresRepository()
 	defer db.Close()
 
+	studentRepo := repository.NewStudentRepository(db)
+	studentService := service.NewStudentService(studentRepo)
+	studentHandler := handler.NewStudentHandler(studentService)
+
 	mux := http.NewServeMux()
 	mux.HandleFunc("/health", healthCheckHandler)
+	mux.HandleFunc("POST /students", studentHandler.Create)
+	mux.HandleFunc("GET /students", studentHandler.FindAll)
+	mux.HandleFunc("GET /students/{id}", studentHandler.FindByID)
+	mux.HandleFunc("PUT /students/{id}", studentHandler.Update)
+	mux.HandleFunc("DELETE /students/{id}", studentHandler.Delete)
 
 	log.Println("servidor rodando na porta 8080")
-	if err := http.ListenAndServe(":8080", mux); err != nil {
+	if err := http.ListenAndServe(":8080", middleware.CORS(mux)); err != nil {
 		log.Fatal(err)
 	}
 }
