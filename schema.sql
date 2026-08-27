@@ -31,3 +31,15 @@ CREATE TABLE enrollment_counters (
 
 CREATE INDEX idx_students_enrollment_number ON students (enrollment_number);
 CREATE INDEX idx_users_email ON users(email);    
+
+CREATE TABLE teachers (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,
+    subject TEXT NOT NULL,
+    phone TEXT NOT NULL,
+    hire_date DATE NOT NULL,
+    class_assigned TEXT NOT NULL,
+    workload_hours INT NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
