@@ -23,6 +23,10 @@ func main() {
 	teacherService := service.NewTeacherService(teacherRepo, userRepo)
 	teacherHandler := handler.NewTeacherHandler(teacherService)
 
+	financeRepo := repository.NewFinanceRepository(db)
+	financeService := service.NewFinanceService(financeRepo)
+	financeHandler := handler.NewFinanceHandler(financeService)
+
 	mux := http.NewServeMux()
 	mux.HandleFunc("/health", healthCheckHandler)
 
@@ -36,6 +40,12 @@ func main() {
 	mux.HandleFunc("GET /teachers", teacherHandler.FindAll)
 	mux.HandleFunc("GET /teachers/{id}", teacherHandler.FindByID)
 	mux.HandleFunc("DELETE /teachers/{id}", teacherHandler.Delete)
+
+	mux.HandleFunc("POST /finance", financeHandler.Create)
+	mux.HandleFunc("GET /finance", financeHandler.FindAll)
+	mux.HandleFunc("GET /finance/students/{studentId}/finance", financeHandler.FindByStudentID)
+	mux.HandleFunc("PATCH /finance/{id}/status", financeHandler.UpdateStatus)
+	mux.HandleFunc("DELETE /finance/{id}", financeHandler.Delete)
 
 	log.Println("servidor rodando na porta 8080")
 	if err := http.ListenAndServe(":8080", middleware.CORS(mux)); err != nil {

@@ -43,3 +43,17 @@ CREATE TABLE teachers (
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+CREATE TABLE finance (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    student_id UUID NOT NULL REFERENCES students(id) ON DELETE CASCADE,
+    description TEXT NOT NULL,
+    amount NUMERIC(10, 2) NOT NULL,
+    payment_method TEXT NOT NULL CHECK (payment_method IN ('cash', 'pix', 'cartao', 'boleto', 'transferencia')),
+    status TEXT NOT NULL DEFAULT 'pendente' CHECK (status IN ( 'pendente', 'pago', 'atrasado', 'isento')),
+    due_date DATE NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX idx_finance_student_id ON finance(student_id);
