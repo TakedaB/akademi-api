@@ -3,10 +3,12 @@ package service
 import (
 	"errors"
 
+	"github.com/TakedaB/akademi-api/internal/model"
 	"github.com/TakedaB/akademi-api/internal/repository"
 )
 
 var ErrInvalidCredentials = errors.New("email ou senha inválidos")
+var ErrUserNotFound = errors.New("usuário não encontrado")
 
 type AuthService struct {
 	userRepo *repository.UserRepository
@@ -26,5 +28,12 @@ func (s *AuthService) Login(email, password string) (string, error) {
 	}
 
 	return GenerateToken(user.ID, string(user.Role))
+}
 
+func (s *AuthService) GetProfile(userID string) (*model.User, error) {
+	user, err := s.userRepo.FindByID(userID)
+	if err != nil {
+		return nil, ErrUserNotFound
+	}
+	return user, nil
 }

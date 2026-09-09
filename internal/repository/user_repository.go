@@ -41,3 +41,15 @@ func (r *UserRepository) FindByEmail(email string) (*model.User, error) {
 func (r *UserRepository) BeginTx() (*sql.Tx, error) {
 	return r.db.Begin()
 }
+
+func (r *UserRepository) FindByID(id string) (*model.User, error) {
+	query := `SELECT id, name, email, password_hash, role, created_at, updated_at FROM users WHERE id = $1`
+
+	var u model.User
+	err := r.db.QueryRow(query, id).Scan(&u.ID, &u.Name, &u.Email, &u.PasswordHash, &u.Role, &u.CreatedAt, &u.UpdatedAt)
+	if err != nil {
+		return nil, err
+	}
+
+	return &u, nil
+}

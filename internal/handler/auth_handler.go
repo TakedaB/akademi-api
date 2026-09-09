@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/TakedaB/akademi-api/internal/middleware"
 	"github.com/TakedaB/akademi-api/internal/service"
 )
 
@@ -43,4 +44,24 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	respondJSON(w, http.StatusOK, loginResponse{Token: token})
+}
+
+func (h *AuthHandler) Me(w http.ResponseWriter, r *http.Request) {
+	claims, ok := r.Context().Value(middleware.ClaimsContextKey).(*service.Claims)
+	if !ok {
+		respondError(w, http.StatusUnauthorized, "não autenticado")
+		return
+	}
+
+	user, err := h.service.GetProfile(claims.UserID)
+	if err != nil {
+		if errors.Is(err, service.ErrUserNotFound) {
+			respondError(w, http.StatusNotFound, "usuário não encontrado")
+			return
+		}
+		respondError(w, http.StatusInternalServerError, "erro interno")
+		return
+	}
+
+	respondJSON(w, http.StatusOK, user)
 }

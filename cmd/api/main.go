@@ -38,6 +38,7 @@ func main() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/health", healthCheckHandler)
 	mux.HandleFunc("POST /login", authHandler.Login)
+	mux.HandleFunc("GET /me", middleware.RequireAuth(authHandler.Me))
 
 	staffOnly := middleware.RequireRole("diretoria", "financeiro")
 	allRoles := middleware.RequireRole("diretoria", "financeiro", "professor", "aluno")
