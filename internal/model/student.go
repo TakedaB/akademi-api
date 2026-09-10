@@ -4,6 +4,7 @@ import "time"
 
 type Student struct {
 	ID               string    `json:"id"`
+	UserID           string    `json:"user_id"`
 	EnrollmentNumber string    `json:"enrollment_number"`
 	Name             string    `json:"name"`
 	BirthDate        time.Time `json:"birth_date"`

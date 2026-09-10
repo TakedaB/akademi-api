@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"time"
 
 	"github.com/TakedaB/akademi-api/internal/model"
 	"github.com/TakedaB/akademi-api/internal/service"
@@ -17,14 +18,43 @@ func NewStudentHandler(service *service.StudentService) *StudentHandler {
 	return &StudentHandler{service: service}
 }
 
+type createStudentRequest struct {
+	Name       string `json:"name"`
+	Email      string `json:"email"`
+	Password   string `json:"password"`
+	BirthDate  string `json:"birth_date"`
+	ParentName string `json:"parent_name"`
+	City       string `json:"city"`
+	Phone      string `json:"phone"`
+	Grade      string `json:"grade"`
+}
+
 func (h *StudentHandler) Create(w http.ResponseWriter, r *http.Request) {
-	var student model.Student
-	if err := json.NewDecoder(r.Body).Decode(&student); err != nil {
+	var req createStudentRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		respondError(w, http.StatusBadRequest, "corpo da requisição inválido")
 		return
 	}
 
-	if err := h.service.Create(&student); err != nil {
+	birthDate, err := time.Parse(time.RFC3339, req.BirthDate)
+	if err != nil {
+		respondError(w, http.StatusBadRequest, "birth_date inválida (use formato RFC3339)")
+		return
+	}
+
+	input := service.CreateStudentInput{
+		Name:       req.Name,
+		Email:      req.Email,
+		Password:   req.Password,
+		BirthDate:  birthDate,
+		ParentName: req.ParentName,
+		City:       req.City,
+		Phone:      req.Phone,
+		Grade:      req.Grade,
+	}
+
+	student, err := h.service.Create(input)
+	if err != nil {
 		respondValidationOrServerError(w, err)
 		return
 	}
@@ -87,6 +117,8 @@ func (h *StudentHandler) Delete(w http.ResponseWriter, r *http.Request) {
 func respondValidationOrServerError(w http.ResponseWriter, err error) {
 	validationErrors := []error{
 		service.ErrNameRequired,
+		service.ErrEmailRequired,
+		service.ErrPasswordRequired,
 		service.ErrPhoneRequired,
 		service.ErrParentRequired,
 		service.ErrBirthDateRequired,
@@ -101,7 +133,6 @@ func respondValidationOrServerError(w http.ResponseWriter, err error) {
 
 	respondError(w, http.StatusInternalServerError, "erro interno")
 }
-
 func respondJSON(w http.ResponseWriter, status int, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)

@@ -20,10 +20,10 @@ func main() {
 	defer db.Close()
 
 	studentRepo := repository.NewStudentRepository(db)
-	studentService := service.NewStudentService(studentRepo)
+	userRepo := repository.NewUserRepository(db)
+	studentService := service.NewStudentService(studentRepo, userRepo)
 	studentHandler := handler.NewStudentHandler(studentService)
 
-	userRepo := repository.NewUserRepository(db)
 	teacherRepo := repository.NewTeacherRepository(db)
 	teacherService := service.NewTeacherService(teacherRepo, userRepo)
 	teacherHandler := handler.NewTeacherHandler(teacherService)

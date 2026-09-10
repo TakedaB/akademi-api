@@ -14,20 +14,24 @@ func NewStudentRepository(db *sql.DB) *StudentRepository {
 	return &StudentRepository{db: db}
 }
 
-func (r *StudentRepository) Create(s *model.Student) error {
+func (r *StudentRepository) Create(tx *sql.Tx, s *model.Student) error {
 	query := `
-		INSERT INTO students (enrollment_number, name, birth_date, parent_name, city, phone, email, grade )
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+		INSERT INTO students (user_id, enrollment_number, birth_date, parent_name, city, phone, grade)
+		VALUES ($1, $2, $3, $4, $5, $6, $7)
 		RETURNING id, created_at, updated_at`
 
-	return r.db.QueryRow(
+	return tx.QueryRow(
 		query,
-		s.EnrollmentNumber, s.Name, s.BirthDate, s.ParentName, s.City, s.Phone, s.Email, s.Grade,
+		s.UserID, s.EnrollmentNumber, s.BirthDate, s.ParentName, s.City, s.Phone, s.Grade,
 	).Scan(&s.ID, &s.CreatedAt, &s.UpdatedAt)
 }
 
 func (r *StudentRepository) FindAll() ([]model.Student, error) {
-	query := `SELECT id, enrollment_number, name, birth_date, parent_name, city, phone, email, grade, created_at, updated_at FROM students ORDER BY name `
+	query := `
+		SELECT s.id, s.user_id, u.name, u.email, s.enrollment_number, s.birth_date, s.parent_name, s.city, s.phone, s.grade, s.created_at, s.updated_at
+		FROM students s
+		JOIN users u ON u.id = s.user_id
+		ORDER BY u.name`
 
 	rows, err := r.db.Query(query)
 	if err != nil {
@@ -38,7 +42,7 @@ func (r *StudentRepository) FindAll() ([]model.Student, error) {
 	var students []model.Student
 	for rows.Next() {
 		var s model.Student
-		if err := rows.Scan(&s.ID, &s.EnrollmentNumber, &s.Name, &s.BirthDate, &s.ParentName, &s.City, &s.Phone, &s.Email, &s.Grade, &s.CreatedAt, &s.UpdatedAt); err != nil {
+		if err := rows.Scan(&s.ID, &s.UserID, &s.Name, &s.Email, &s.EnrollmentNumber, &s.BirthDate, &s.ParentName, &s.City, &s.Phone, &s.Grade, &s.CreatedAt, &s.UpdatedAt); err != nil {
 			return nil, err
 		}
 		students = append(students, s)
@@ -48,10 +52,14 @@ func (r *StudentRepository) FindAll() ([]model.Student, error) {
 }
 
 func (r *StudentRepository) FindByID(id string) (*model.Student, error) {
-	query := `SELECT id, enrollment_number, name, birth_date, parent_name, city, phone, email, grade, created_at, updated_at FROM students WHERE id = $1`
+	query := `
+		SELECT s.id, s.user_id, u.name, u.email, s.enrollment_number, s.birth_date, s.parent_name, s.city, s.phone, s.grade, s.created_at, s.updated_at
+		FROM students s
+		JOIN users u ON u.id = s.user_id
+		WHERE s.id = $1`
 
 	var s model.Student
-	err := r.db.QueryRow(query, id).Scan(&s.ID, &s.EnrollmentNumber, &s.Name, &s.BirthDate, &s.ParentName, &s.City, &s.Phone, &s.Email, &s.Grade, &s.CreatedAt, &s.UpdatedAt)
+	err := r.db.QueryRow(query, id).Scan(&s.ID, &s.UserID, &s.Name, &s.Email, &s.EnrollmentNumber, &s.BirthDate, &s.ParentName, &s.City, &s.Phone, &s.Grade, &s.CreatedAt, &s.UpdatedAt)
 	if err != nil {
 		return nil, err
 	}
@@ -61,13 +69,13 @@ func (r *StudentRepository) FindByID(id string) (*model.Student, error) {
 func (r *StudentRepository) Update(s *model.Student) error {
 	query := `
 		UPDATE students
-		SET enrollment_number = $1, name = $2, birth_date = $3, parent_name = $4, city = $5, phone = $6, email = $7, grade = $8, updated_at = now()
-		WHERE id = $9
+		SET birth_date = $1, parent_name = $2, city = $3, phone = $4, grade = $5, updated_at = now()
+		WHERE id = $6
 		RETURNING updated_at`
 
 	return r.db.QueryRow(
 		query,
-		s.EnrollmentNumber, s.Name, s.BirthDate, s.ParentName, s.City, s.Phone, s.Email, s.Grade, s.ID,
+		s.BirthDate, s.ParentName, s.City, s.Phone, s.Grade, s.ID,
 	).Scan(&s.UpdatedAt)
 }
 
