@@ -67,12 +67,13 @@ func (h *FinanceHandler) UpdateStatus(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := h.service.UpdateStatus(id, req.Status); err != nil {
+	updated, err := h.service.UpdateStatus(id, req.Status)
+	if err != nil {
 		respondFinanceError(w, err)
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
+	respondJSON(w, http.StatusOK, updated)
 }
 
 func (h *FinanceHandler) Delete(w http.ResponseWriter, r *http.Request) {

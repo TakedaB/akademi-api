@@ -69,9 +69,9 @@ func (s *FinanceService) FindByStudentID(studentID string) ([]model.Finance, err
 	return s.repo.FindByStudentID(studentID)
 }
 
-func (s *FinanceService) UpdateStatus(id, status string) error {
+func (s *FinanceService) UpdateStatus(id, status string) (*model.Finance, error) {
 	if !validStatuses[status] {
-		return ErrFinanceStatusInvalid
+		return nil, ErrFinanceStatusInvalid
 	}
 	return s.repo.UpdateStatus(id, status)
 }

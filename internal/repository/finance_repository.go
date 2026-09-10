@@ -66,23 +66,22 @@ func (r *FinanceRepository) FindByStudentID(studentID string) ([]model.Finance, 
 	return records, rows.Err()
 }
 
-func (r *FinanceRepository) UpdateStatus(id, status string) error {
-	query := `UPDATE finance SET status = $1, updated_at = now() WHERE id = $2`
+func (r *FinanceRepository) UpdateStatus(id, status string) (*model.Finance, error) {
+	query := `
+		UPDATE finance
+		SET status = $1, updated_at = now()
+		WHERE id = $2
+		RETURNING id, student_id, description, amount, payment_method, status, due_date, created_at, updated_at`
 
-	result, err := r.db.Exec(query, status, id)
+	var f model.Finance
+	err := r.db.QueryRow(query, status, id).Scan(
+		&f.ID, &f.StudentID, &f.Description, &f.Amount, &f.PaymentMethod, &f.Status, &f.DueDate, &f.CreatedAt, &f.UpdatedAt,
+	)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	rowsAffected, err := result.RowsAffected()
-	if err != nil {
-		return err
-	}
-
-	if rowsAffected == 0 {
-		return sql.ErrNoRows
-	}
-	return nil
+	return &f, nil
 }
 
 func (r *FinanceRepository) Delete(id string) error {
