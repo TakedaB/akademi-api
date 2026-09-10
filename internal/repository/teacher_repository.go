@@ -39,7 +39,7 @@ func (r *TeacherRepository) FindAll() ([]model.Teacher, error) {
 	}
 	defer rows.Close()
 
-	var teachers []model.Teacher
+	teachers := []model.Teacher{}
 	for rows.Next() {
 		var t model.Teacher
 		if err := rows.Scan(&t.ID, &t.UserID, &t.Name, &t.Email, &t.Subject, &t.Phone, &t.HireDate, &t.ClassAssigned, &t.WorkloadHours, &t.CreatedAt, &t.UpdatedAt); err != nil {

@@ -35,7 +35,7 @@ func (r *FinanceRepository) FindAll() ([]model.Finance, error) {
 	}
 	defer rows.Close()
 
-	var records []model.Finance
+	records := []model.Finance{}
 	for rows.Next() {
 		var f model.Finance
 		if err := rows.Scan(&f.ID, &f.StudentID, &f.Description, &f.Amount, &f.PaymentMethod, &f.Status, &f.DueDate, &f.CreatedAt, &f.UpdatedAt); err != nil {
@@ -55,7 +55,7 @@ func (r *FinanceRepository) FindByStudentID(studentID string) ([]model.Finance, 
 	}
 	defer rows.Close()
 
-	var records []model.Finance
+	records := []model.Finance{}
 	for rows.Next() {
 		var f model.Finance
 		if err := rows.Scan(&f.ID, &f.StudentID, &f.Description, &f.Amount, &f.PaymentMethod, &f.Status, &f.DueDate, &f.CreatedAt, &f.UpdatedAt); err != nil {

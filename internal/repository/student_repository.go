@@ -39,7 +39,7 @@ func (r *StudentRepository) FindAll() ([]model.Student, error) {
 	}
 	defer rows.Close()
 
-	var students []model.Student
+	students := []model.Student{}
 	for rows.Next() {
 		var s model.Student
 		if err := rows.Scan(&s.ID, &s.UserID, &s.Name, &s.Email, &s.EnrollmentNumber, &s.BirthDate, &s.ParentName, &s.City, &s.Phone, &s.Grade, &s.CreatedAt, &s.UpdatedAt); err != nil {
