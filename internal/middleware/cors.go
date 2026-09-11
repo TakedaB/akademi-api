@@ -1,17 +1,26 @@
 package middleware
 
-import "net/http"
+import (
+	"net/http"
+	"strings"
+)
 
 var allowedOrigins = map[string]bool{
-	"http://localhost:3000":           true,
-	"https://akademi-plum.vercel.app": true,
+	"http://localhost:3000": true,
+}
+
+func isAllowedOrigin(origin string) bool {
+	if allowedOrigins[origin] {
+		return true
+	}
+	return strings.HasSuffix(origin, ".vercel.app")
 }
 
 func CORS(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		origin := r.Header.Get("Origin")
 
-		if allowedOrigins[origin] {
+		if isAllowedOrigin(origin) {
 			w.Header().Set("Access-Control-Allow-Origin", origin)
 		}
 
