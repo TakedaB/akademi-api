@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/TakedaB/akademi-api/internal/handler"
 	"github.com/TakedaB/akademi-api/internal/middleware"
@@ -61,8 +62,13 @@ func main() {
 	mux.HandleFunc("PATCH /finance/{id}/status", middleware.RequireAuth(staffOnly(financeHandler.UpdateStatus)))
 	mux.HandleFunc("DELETE /finance/{id}", middleware.RequireAuth(staffOnly(financeHandler.Delete)))
 
-	log.Println("servidor rodando na porta 8080")
-	if err := http.ListenAndServe(":8080", middleware.CORS(mux)); err != nil {
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+
+	log.Println("servidor rodando na porta " + port)
+	if err := http.ListenAndServe(":"+port, middleware.CORS(mux)); err != nil {
 		log.Fatal(err)
 	}
 }
