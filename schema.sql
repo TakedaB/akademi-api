@@ -12,13 +12,12 @@ CREATE TABLE users (
 
 CREATE TABLE students (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     enrollment_number TEXT NOT NULL UNIQUE,
-    name TEXT NOT NULL,
     birth_date DATE NOT NULL,
     parent_name TEXT NOT NULL,
     city TEXT,
     phone TEXT NOT NULL,
-    email TEXT,
     grade TEXT,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
@@ -30,7 +29,8 @@ CREATE TABLE enrollment_counters (
 );
 
 CREATE INDEX idx_students_enrollment_number ON students (enrollment_number);
-CREATE INDEX idx_users_email ON users(email);    
+CREATE INDEX idx_students_user_id ON students (user_id);
+CREATE INDEX idx_users_email ON users(email);
 
 CREATE TABLE teachers (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -50,7 +50,7 @@ CREATE TABLE finance (
     description TEXT NOT NULL,
     amount NUMERIC(10, 2) NOT NULL,
     payment_method TEXT NOT NULL CHECK (payment_method IN ('cash', 'pix', 'cartao', 'boleto', 'transferencia')),
-    status TEXT NOT NULL DEFAULT 'pendente' CHECK (status IN ( 'pendente', 'pago', 'atrasado', 'isento')),
+    status TEXT NOT NULL DEFAULT 'pendente' CHECK (status IN ('pendente', 'pago', 'atrasado', 'isento')),
     due_date DATE NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
